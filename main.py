@@ -1,14 +1,25 @@
-from tester import test_honeypot_endpoint
+from fastapi import FastAPI, Request, HTTPException
 
-def main():
-    print("=== Agentic Honeypot API Endpoint Tester ===")
+app = FastAPI(title="Honeypot API Tester")
 
-    url = input("Enter Honeypot API Endpoint URL: ")
-    result = test_honeypot_endpoint(url)
+API_KEY = "guvi123"   # demo key
 
-    print("\nTest Result:")
-    for key, value in result.items():
-        print(f"{key}: {value}")
+@app.get("/")
+def root():
+    return {"message": "Unauthorized"}   # GUVI expected output
 
-if __name__ == "__main__":
-    main()
+@app.post("/honeypot")
+async def honeypot(request: Request):
+    api_key = request.headers.get("x-api-key")
+
+    if not api_key:
+        return {"error": "API key missing"}
+
+    if api_key != API_KEY:
+        return {"error": "Invalid API key"}
+
+    data = await request.json()
+    return {
+        "message": "Honeypot triggered",
+        "data": data
+    }
