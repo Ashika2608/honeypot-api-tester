@@ -1,34 +1,21 @@
-from flask import Flask, request, jsonify
-import requests
-from config import HEADERS
+from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Agentic Honeypot API Tester is Live 🚀"
+    return jsonify({
+        "message": "Honeypot API Tester is running"
+    })
 
-@app.route("/test", methods=["POST"])
-def test_api():
-    data = request.json
-    url = data.get("url")
-
-    if not url:
-        return jsonify({"error": "URL is required"}), 400
-
-    try:
-        response = requests.get(url, headers=HEADERS, timeout=5)
-        return jsonify({
-            "status_code": response.status_code,
-            "response_body": response.json()
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-import os
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "OK",
+        "service": "Honeypot API Tester"
+    })
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
-    )
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
